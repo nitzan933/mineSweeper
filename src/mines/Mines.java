@@ -6,6 +6,7 @@ public class Mines {
 	private int height;
 	private int width;
 	protected int numMines;
+	private int numFlags; //num of flags to set for win
 	private int[][] board;
 	private boolean[][] flag; //saves the spot of the flag 
 	protected boolean showAll;
@@ -21,6 +22,7 @@ public class Mines {
 		this.height = height;
 		this.width = width;
 		this.numMines = numMines;
+		numFlags = numMines;
 		showAll = false;
 		board = new int[height][width];
 		flag = new boolean[height][width];
@@ -30,6 +32,22 @@ public class Mines {
 				flag[i][j] = false;
 			}
 		setMines();
+	}
+	
+	public int getNumFlags() {
+		return numFlags;
+	}
+	
+	public void setNumFlags (int cnt) {
+		numFlags = cnt;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int getWidth() {
+		return width;
 	}
 	
 	public boolean addMine(int i, int j) {

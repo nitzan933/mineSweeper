@@ -4,57 +4,68 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="stack" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="545.0" prefWidth="785.0" style="-fx-background-color: #87CEFA;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mines.MyController1">
+<StackPane fx:id="stack" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="545.0" prefWidth="785.0" style="-fx-background-color: #471C09;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mines.MyController1">
    <children>
-      <TextField fx:id="width" alignment="CENTER_RIGHT" maxWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" prefHeight="26.0" prefWidth="94.0" text="0" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets left="50.0" top="70.0" />
-         </StackPane.margin>
-      </TextField>
-      <TextField fx:id="height" maxWidth="-Infinity" prefHeight="26.0" prefWidth="94.0" text="0" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets left="50.0" top="140.0" />
-         </StackPane.margin>
-      </TextField>
-      <TextField fx:id="mines" maxWidth="-Infinity" prefHeight="26.0" prefWidth="94.0" text="0" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets left="50.0" top="210.0" />
-         </StackPane.margin>
-      </TextField>
-      <Button fx:id="reset" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#Reset" prefHeight="26.0" prefWidth="146.0" style="-fx-background-color: #AFEEEE;" text="Reset" StackPane.alignment="CENTER_LEFT" />
-      <Label text="width" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets top="70.0" />
-         </StackPane.margin>
-      </Label>
-      <Label layoutX="30.0" layoutY="303.0" text="height" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets top="140.0" />
-         </StackPane.margin>
-      </Label>
-      <Label layoutX="372.0" layoutY="268.0" text="mines" StackPane.alignment="CENTER_LEFT">
-         <StackPane.margin>
-            <Insets top="210.0" />
-         </StackPane.margin>
-      </Label>
-      <GridPane fx:id="grid" hgap="2.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" vgap="2.0" StackPane.alignment="CENTER">
+      <GridPane fx:id="grid" alignment="CENTER" hgap="2.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="84.0" prefWidth="51.0" vgap="2.0" StackPane.alignment="CENTER">
         <rowConstraints>
             <RowConstraints vgrow="SOMETIMES" />
         </rowConstraints>
-         <StackPane.margin>
-            <Insets left="170.0" />
-         </StackPane.margin>
          <columnConstraints>
             <ColumnConstraints />
          </columnConstraints>
+         <StackPane.margin>
+            <Insets left="150.0" />
+         </StackPane.margin>
       </GridPane>
+      <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" StackPane.alignment="CENTER_LEFT">
+         <children>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20.0">
+               <children>
+                  <Label prefWidth="50.0" style="-fx-font-size: 15;" text="Height" textFill="WHITE" />
+                  <TextField fx:id="height" maxWidth="-Infinity" prefHeight="26.0" prefWidth="106.0" text="10" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="26.0" prefWidth="174.0" spacing="20.0">
+               <children>
+                  <Label prefWidth="50.0" style="-fx-font-size: 15;" text="Width" textFill="WHITE" />
+                  <TextField fx:id="width" alignment="CENTER_RIGHT" maxWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" prefHeight="26.0" prefWidth="106.0" text="10" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20.0">
+               <children>
+                  <Label prefWidth="50.0" style="-fx-font-size: 15;" text="Mines" textFill="WHITE" />
+                  <TextField fx:id="mines" maxWidth="-Infinity" prefHeight="26.0" prefWidth="106.0" text="10" />
+               </children>
+            </HBox>
+            <Button fx:id="reset" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#Reset" prefHeight="29.0" prefWidth="154.0" style="-fx-background-color: #E9D0C7; -fx-border-radius: 100px; -fx-font-size: 15; -fx-background-radius: 100px; -fx-border-width: 2; -fx-border-color: #ffffff;" text="Reset" />
+            <Label fx:id="err" alignment="CENTER" contentDisplay="CENTER" style="-fx-font-size: 15;" />
+            <Label fx:id="res" alignment="CENTER" contentDisplay="CENTER" style="-fx-font-size: 40; -fx-font-weight: bold;" />
+         </children>
+         <StackPane.margin>
+            <Insets />
+         </StackPane.margin>
+      </VBox>
+      <HBox fx:id="flagHbox" maxHeight="-Infinity" maxWidth="-Infinity" spacing="10.0" visible="false" StackPane.alignment="TOP_LEFT">
+         <children>
+            <ImageView fitHeight="25.0" fitWidth="54.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../images/flag.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="flagCnt" style="-fx-font-size: 20;" textFill="WHITE" />
+         </children>
+      </HBox>
    </children>
    <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="50.0" />
+      <Insets left="20.0" top="20.0" />
    </padding>
 </StackPane>

@@ -4,74 +4,82 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class MinesFX extends Application{
-	private static StackPane stack;
+	private StackPane stack;
 	private static GridPane grid;
-	private static int cntF = 0;
 	private static Mines game;
-	private static Label flags;
+	private static Label res;
+	private VBox vbox;
+	private static Scene s;
+	private static double widthW, heightW;
 	
-
+	@FXML
+    protected static Label flagCnt;
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(getClass().getResource("Minesweeper.fxml"));
+			
 			stack = loader.load();
-			flags = new Label("you set " + cntF + " flags");
-			Font myFont = new Font(14);
-			flags.setFont(myFont);
-			stack.getChildren().add(flags); //num of flags label
 			stack.setAlignment(Pos.TOP_LEFT);
-			grid = (GridPane) stack.getChildren().get(7); //grid for the spots
-			Scene s = new Scene(stack, 900, 600);
+			vbox = (VBox)stack.getChildren().get(1);
+			res = (Label)vbox.getChildren().get(5);
+			grid = (GridPane) stack.getChildren().get(0); //grid for the spots
+			widthW = 900;
+			heightW = 600;
+			s = new Scene(stack, widthW, heightW);
 			primaryStage.setTitle("The Amazing Mines Weeper");
 			primaryStage.setScene(s);
 			primaryStage.show();
+			primaryStage.widthProperty().addListener((obs, oldVal, newVal) -> {
+				widthW = primaryStage.getWidth();
+				heightW = primaryStage.getHeight();
+				resizeGridButtons();
+			});
 		} catch (IOException e) {
 		e.printStackTrace();
 		return;}
-		
 	}
-	
-	
 	
 	
 	
 	protected static void setGrid(Mines game1, int width, int height) {
 		game = game1;
-		cntF = 0;
-		flags.setText("you set " + cntF + " flags");
+		widthW = width;
+		heightW = height;
 
 		class setFlag implements EventHandler<MouseEvent> {
 			@Override
 			public void handle(MouseEvent event) {
 				spot b = (spot) event.getSource();
-				
-				if (event.getButton() == MouseButton.SECONDARY && (b.getText().equals(".") || b.getText().equals("F"))) {
-					if(b.getText().equals("F") == false) {
-						b.setText("F");
-						cntF++;
-						flags.setText("you set " + cntF + " flags");
+				if (event.getButton() == MouseButton.SECONDARY && (b.getText().equals(".") || b.getGraphic() != null )) { //right click and unopened spot
+					if(b.getGraphic() == null) { //set flag on spot
+						ImageView flag = new ImageView("@../../images/flag.png");
+						b.setGraphic(flag); //set flag image on spot
+						game.setNumFlags(game.getNumFlags() - 1);
+						flagCnt.setText(String.valueOf(game.getNumFlags()));
 					}
-					else {
+					else { //remove flag from spot
+						b.setGraphic(null); //remove flag image from spot
 						b.setText(game.get(b.getx(), b.gety()));
-						cntF--;
-						flags.setText("you set " + cntF + " flags");
+						game.setNumFlags(game.getNumFlags() + 1);
 					}
 				}
 			}
@@ -94,31 +102,23 @@ public class MinesFX extends Application{
 							spot cur = (spot) grid.getChildren().get(i*width + j);							
 							if(game.get(i,  j).equals("X")) {
 								cur.setText(game.get(i,  j));
-								cur.setStyle("-fx-font-weight: bold;");
+								cur.setStyle("-fx-border-width: 1; -fx-border-color: #ffffff; -fx-background-color: #FFAEBF; -fx-font-weight: bold;");
 								cur.setTextFill(Color.RED);
 							}
 						}
-					Label lost = new Label("YOU LOST!"); //lose label
-					Scene s = new Scene(lost);
-					lost.setPadding(new Insets(20));
-					Font myFont = new Font(40);
-					lost.setFont(myFont);
-					lost.setTextFill(Color.RED);
-					lost.setStyle("-fx-font-weight: bold;");
-					Stage pop = new Stage();
-					pop.setScene(s);
-					pop.show();
+				res.setText("YOU LOST!"); //lose label
+				res.setTextFill(Color.RED);
 				}
-				if(game.showAll == false) { //user havent lost or won
-					int countSpots = 0;//count the spots that havent opened yet
+				if(game.showAll == false) { //user haven't lost or won
+					int countSpots = 0;//count the spots that haven't opened yet
 					for(int i=0; i<height; i++) { //scan all the spots in the board
 						for(int j=0; j<width; j++) {
 							spot cur = (spot) grid.getChildren().get(i*width + j);
-							if(cur.getflag() == false ) {//havent opened yet							
+							if(cur.getflag() == false ) {//Haven't opened yet							
 								if(game.get(i,  j).equals(".") == false && game.get(i,  j).equals("X") == false) { //the spot is open
 									if(cur.getText().equals("F")) { //open a spot with a flag
-										cntF--;
-										flags.setText("you set " + cntF + " flags");
+										game.setNumFlags(game.getNumFlags() - 1);
+										flagCnt.setText(String.valueOf(game.getNumFlags()));
 									}
 									cur.setflag(true); 
 									cur.setText(game.get(i,  j));
@@ -136,42 +136,48 @@ public class MinesFX extends Application{
 								spot cur = (spot) grid.getChildren().get(i*width + j);							
 								if(game.get(i,  j).equals("X")) {
 									cur.setText(game.get(i,  j));
-									cur.setStyle("-fx-font-weight: bold;");
+									cur.setStyle("-fx-border-width: 1; -fx-border-color: #ffffff; -fx-background-color: #FFAEBF; -fx-font-weight: bold;");
 									cur.setTextFill(Color.GREEN);
 								}
 							}
-						Label win = new Label("YOU WON!"); //win label
-						Scene s = new Scene(win);
-						win.setPadding(new Insets(20));
-						Font myFont = new Font(15);
-						win.setFont(myFont);
-						win.setTextFill(Color.GREEN);
-						win.setStyle("-fx-font-weight: bold;");
-						Stage pop = new Stage();
-						pop.setScene(s);
-						pop.show();
+						res.setText("YOU WON!"); //win label
+						res.setTextFill(Color.GREEN);
 					}
-				}
-					
+				}	
 			}
 		}
 		
-		for(int i=0; i<height; i++) { //add the spots to the gridpane
+		double buttonSize;
+		for(int i=0; i<height; i++) { //add the spots to the grid pane
 			for(int j=0; j<width; j++) {
 				spot b = new spot(game.get(i, j),i, j);
-				b.setStyle("-fx-background-color: #AFEEEE");
-				b.setMinSize(30, 30);
+				b.setStyle("-fx-border-width: 1; -fx-border-color: #ffffff; -fx-background-color: #E9D0C7");
+				if(heightW < widthW) {  //set size to grid buttons
+					buttonSize = (heightW - 20) / height;} 
+				else {
+					buttonSize = (widthW - 150) / width;}
+				b.setPrefSize(buttonSize, buttonSize);
 				b.setOnAction(new openSpot());
 				b.setOnMouseClicked(new setFlag()); 
 				grid.add(b, i, j);
 			}
 		}
-		
-
 	}
-
-
 	
+	private static void resizeGridButtons() {
+		double buttonSize;
+		spot b;
+		for(int i=0; i<grid.getChildren().size(); i++) { //add the spots to the grid pane
+			b = (spot)grid.getChildren().get(i);
+			if(heightW < widthW) {  //set size to grid buttons
+				buttonSize = (heightW - 20) / game.getHeight();} 
+			else {
+				buttonSize = (widthW - 150) / game.getWidth();}
+			b.setPrefSize(buttonSize, buttonSize);
+		}
+	}
+	
+
 
 	public static void main(String[] args) {
 		launch(args);
