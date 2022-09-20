@@ -2,13 +2,17 @@ package mines;
 
 import java.util.Random;
 
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+
 public class Mines {
 	private int height;
 	private int width;
 	protected int numMines;
+	protected int openedSpots;
 	private int numFlags; //num of flags to set for win
 	private int[][] board;
-	private boolean[][] flag; //saves the spot of the flag 
+	private boolean[][] flags; //saves the spot of the flag 
 	protected boolean showAll;
 	
 	/*
@@ -23,13 +27,14 @@ public class Mines {
 		this.width = width;
 		this.numMines = numMines;
 		numFlags = numMines;
+		openedSpots = 0;
 		showAll = false;
 		board = new int[height][width];
-		flag = new boolean[height][width];
+		flags = new boolean[height][width];
 		for(int i = 0; i<height; i++)
 			for(int j=0; j<width; j++) {
 				board[i][j] = -1;
-				flag[i][j] = false;
+				flags[i][j] = false;
 			}
 		setMines();
 	}
@@ -50,117 +55,87 @@ public class Mines {
 		return width;
 	}
 	
-	public boolean addMine(int i, int j) {
-		if(checkSpot(i, j) == true)
-			if(board[i][j] != 1) {
-				board[i][j] = 1;
-				return true;
-			}
-		return false; //if there is already a mine in the spot
-	}
-	
-	public boolean open(int i, int j) {
-		boolean flag = true;
-		if(board[i][j] == 1)//mine
-			return false;
-		board[i][j] = 0; //open spot
-		for(int k=i-1; k<=i+1; k++) //check for each spot near the current spot
-			for(int t=j-1; t<=j+1; t++)
-				if(k != i || t != j) //if it isnt the current spot
-					if(checkSpot(k, t) == true) {
-						if(board[k][t] == 1)
-							flag = false;
-					}
-		if(flag == true) //open all near spots
-			for(int k=i-1; k<=i+1; k++) //check for each spot near the current spot
-				for(int t=j-1; t<=j+1; t++)
-					if(k != i || t != j) //if it isnt the current spot
-						if(checkSpot(k, t) == true) 
-							if(board[k][t] == -1)
-								open(k,t);
-		return true;
+	/*
+	 *  input: i, j are indexes in the board
+	 *  output: false if the user lost, otherwise true. 
+	 */
+	public boolean open(int i, int j, GridPane grid, Label flagCnt) {   		
+		if(board[i][j] == 1) return false; //mine - user lost
+		if(board[i][j] == 0) return true;  //spot already opened
 		
+		board[i][j] = 0; //open spot
+		openedSpots++;
+		Spot spot = (Spot)grid.getChildren().get(i*width + j); //updates button in gui
+		if(spot.getGraphic() != null) { //open a spot with a flag
+			setNumFlags(getNumFlags() + 1);
+			flagCnt.setText(String.valueOf(getNumFlags()));
+			spot.setGraphic(null);
+		}
+		spot.setOpened(true); 
+		spot.setText(get(i,  j));
+		
+		if(nearMines(i, j) > 0) return true; 
+		
+		for(int k=i-1; k<=i+1; k++) //each spot near the current spot
+			for(int t=j-1; t<=j+1; t++)
+				if(spotExist(k, t) == true) 
+					if(board[k][t] == -1)
+						open(k, t, grid, flagCnt);
+		return true;
+	
 	}
 	
 	public void toggleFlag(int x, int y) {
-		if(checkSpot(x, y) == true) 
-			if(flag[x][y] == true)
-				flag[x][y] = false;
-			else flag[x][y] = true;
+		if(spotExist(x, y) == true) 
+			if(flags[x][y] == true)
+				flags[x][y] = false;
+			else flags[x][y] = true;
 	}
 	
-	public boolean isDone() {
-		for(int i = 0; i<height; i++)
-			for(int j=0; j<width; j++)
-				if(board[i][j] == -1)
-					return false;
-		return true;
-	}
-	
-	public String get(int i, int j) {
-		if(flag[i][j] == true) return "F";
-		if(board[i][j] == 1 && showAll == true) return "X";
-
-		if((board[i][j] == -1 || board[i][j] == 1 )&& showAll == false) return ".";
-		if(nearMines( i, j) == 0) return " ";
-		return "" + nearMines( i, j);
+	public String get(int i, int j) { //return the current status of spot on board 
+		if(flags[i][j] == true) return "F"; //flag
+		if(board[i][j] == 1 && showAll == true) return "X"; //mine
+		if((board[i][j] == -1 || board[i][j] == 1 ) && showAll == false) return "."; //spot not opened
+		
+		//number of mines
+		if(nearMines(i, j) == 0) return " "; 
+		return String.valueOf(nearMines(i, j));
 	}
 	
 	public void setShowAll(boolean showAll) {
 		this.showAll = showAll;
 	}
-
-
-	public String toString() {
-		String s = "";
-		for(int i = 0; i<height; i++) {
-			for(int j=0; j<width; j++)
-				s += get(i, j);
-			s+= "\n";
-		}
-		return s;
-	}
 	
-	private boolean checkSpot(int i, int j) { //returns true if the spot is in the board
-		if(i>=height || i<0 || j>=width ||j<0) //the spot is not in the board
+	protected boolean spotExist(int i, int j) { 
+		if(i>=height || i<0 || j>=width || j<0) 
 			return false;
 		return true;
 	}
 	
-	private int nearMines(int i, int j) { //return the num of mines near the spot
+	private int nearMines(int i, int j) { 
 		int count = 0;
 		for(int k=i-1; k<=i+1; k++) //check for each spot near the current spot
 			for(int t=j-1; t<=j+1; t++)
-				if(k != i || t != j) //if it isnt the current spot
-					if(checkSpot(k, t) == true) 
-						if(board[k][t] == 1) { //if there is a mine in the spot
+				if(k != i || t != j) 
+					if(spotExist(k, t) == true) 
+						if(board[k][t] == 1) { //there is a mine in the spot
 							count++;
 						}
 		return count;
 	}
 	
-	private void setMines() {
+	private void setMines() { //set mines in a random empty spot 
 		Random rand = new Random();
 		int w, h;
 		h=rand.nextInt(height);
 		w=rand.nextInt(width);
-		for(int i=0; i<numMines; i++) { //set a mine in a random empty spot 
+		for(int i=0; i<numMines; i++) { 
 			while(board[h][w] == 1) {
 				h=rand.nextInt(height);
 				w=rand.nextInt(width);
 			}
 			board[h][w] = 1;
 		}
-	}
-	
-	public static void main(String[] args) throws Exception {
-		Mines m = new Mines(4, 4, 0);
-		m.open(2,2);
-		m.open(3,0);
-		m.setShowAll(true);
-		System.out.println(m);
-
-
 	}
 
 

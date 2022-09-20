@@ -2,12 +2,12 @@ package mines;
 
 import javafx.scene.control.Button;
 
-class spot extends Button{
+class Spot extends Button{
 	private int x;
 	private int y;
 	private boolean opened;
 	
-	public spot(String s, int x, int y) {
+	public Spot(String s, int x, int y) {
 		super(s);
 		this.x = x;
 		this.y = y;
@@ -20,10 +20,10 @@ class spot extends Button{
 	public int gety(){
 		return y;
 	}
-	public void setflag(boolean val) {
+	public void setOpened(boolean val) {
 		opened = val;
 	}
-	public boolean getflag(){
+	public boolean getOpened(){
 		return opened;
 	}
 }
